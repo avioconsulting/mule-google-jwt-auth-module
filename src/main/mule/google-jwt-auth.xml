@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="9eb25f0d-8fd8-4232-85f6-829bbc0b6b11" />
+	<http:request-config name="Google_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="927f7f34-f15c-4449-aade-37d86ff6b559">
+		<http:request-connection protocol="HTTPS" host="oauth2.googleapis.com"/>
+	</http:request-config>
+	<sub-flow name="create-jwt-and-get-token-subflow" doc:id="447d4686-a6e8-43ee-b4d0-a57a183dbdf2" >
+		<ee:transform doc:name="Create JWT" doc:id="1a2059cf-c16f-49a9-bf2d-67e606e4582a" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="googleJWT" ><![CDATA[%dw 2.0
+import java!com::avioconsulting::utils::authUtils
+output application/java
+---
+
+authUtils::createJWT(vars.googleScopes)
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9" >
+			<when expression='#[vars.googleJWT contains("ERROR:")]'>
+				<raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="APP:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']"/>
+			</when>
+			<otherwise >
+				<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" config-ref="Google_HTTP_Request_configuration" path="/token" sendCorrelationId="NEVER">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+	assertion: vars.googleJWT
+	
+}]]]></http:query-params>
+		</http:request>
+			</otherwise>
+		</choice>
+		<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="googleToken" objectStore="Object_store"/>
+	</sub-flow>
+</mule>
