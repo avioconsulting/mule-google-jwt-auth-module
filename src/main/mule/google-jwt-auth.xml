@@ -42,6 +42,15 @@ authUtils::createJWT(vars.googleScopes)
 		</http:request>
 			</otherwise>
 		</choice>
+		<ee:transform doc:name="Clean and format recieved token" doc:id="82a18a48-5c2f-41fc-88c7-6ba01ded09d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/java
+---
+substringBefore(payload.access_token,"...")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="googleToken" objectStore="Object_store"/>
 	</sub-flow>
 </mule>

@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.avioconsulting.mule</groupId>
-	<artifactId>google-jwt-auth</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<artifactId>mule-google-jwt-auth-module</artifactId>
+	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
-	<name>google-jwt-auth</name>
+	<name>mule-google-jwt-auth-module</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,6 +29,9 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				<configuration>
+					<classifier>mule-plugin</classifier>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -126,7 +129,7 @@
 			<name>mulesoft-ee-releases</name>
 			<url>https://repository.mulesoft.org/nexus-ee/content/repositories/releases-ee/</url>
 			<layout>default</layout>
-		</pluginRepository>	
+		</pluginRepository>
 		<pluginRepository>
 			<id>mulesoft-releases</id>
 			<name>mulesoft release repository</name>
@@ -150,16 +153,16 @@
 		</snapshotRepository>
 	</distributionManagement>
 	<profiles>
-        <profile>
-            <id>exchange</id>
-            <distributionManagement>
-                <repository>
-                    <id>anypoint-exchange</id>
-                    <name>Exchange Repository</name>
-                    <url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-    </profiles>
+		<profile>
+			<id>exchange</id>
+			<distributionManagement>
+				<repository>
+					<id>anypoint-exchange</id>
+					<name>Exchange Repository</name>
+					<url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
 
 </project>
