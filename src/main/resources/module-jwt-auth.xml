@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="Mule JWT Auth Module"
+        category="PREMIUM"
+        xmlns="http://www.mulesoft.org/schema/mule/module"
+        xmlns:http="http://www.mulesoft.org/schema/mule/http"
+        xmlns:os="http://www.mulesoft.org/schema/mule/os"
+        xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+        xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+        xmlns:java="http://www.mulesoft.org/schema/mule/java"
+        xmlns:jwt-auth="http://www.mulesoft.org/schema/mule/module-jwt-auth"        
+        xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/module http://www.mulesoft.org/schema/mule/module/current/mule-module.xsd 
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd 
+http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/schema/mule/module-jwt-auth/current/mule-module-jwt-auth.xsd">
+	
+	<operation name="get-google-access-token" doc:description="Generate a signed JWT to send to Google and receive an access token">
+	
+		<parameters>
+			<parameter name="privateKeyId" type="string" displayName="Private Key Id" doc:description="Private Key Id"
+			  order="1" />
+			<parameter name="privateKey" type="string" displayName="Private Key" doc:description="RSA Private Key"
+			  order="2" />
+			<parameter name="issuer" type="string" displayName="Issuer" doc:description="Email of user issuing authorization"
+			  example="test-user@gmail.com" order="3" />
+			<parameter name="subject" type="string" displayName="User" doc:description="Email of user performing operation"
+              example="test-user@gmail.com" order="4" />
+            <parameter name="scopes" type="string" displayName="Scopes" doc:description="Space delimited list of permission scopes"
+              example="https://www.googleapis.com/auth/drive" order="5" />
+            <parameter name="audience" type="string" displayName="Audience" doc:description="Intended recipient of JWT"
+              example="https://oauth2.googleapis.com/token" order="6" />
+			<parameter name="objectStoreConfig" type="string" displayName="Object Store Config name"
+              example="object-store" order="7" />
+		</parameters>
+		
+		<body>
+			<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.authUtils" method="createJWT(String)" target="googleJWT">
+				<java:args ><![CDATA[#[{
+	arg0: vars.scopes
+}]]]></java:args>
+			</java:invoke-static>
+			<mule:choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9" >
+			<mule:when expression='#[vars.googleJWT contains("ERROR:")]'>
+				<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']"/>
+			</mule:when>
+			<mule:otherwise >
+				<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" url="#[vars.audience]" >
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+	assertion: vars.googleJWT
+	
+}]]]></http:query-params>
+		</http:request>
+			</mule:otherwise>
+		</mule:choice>
+		<ee:transform doc:name="Clean and format recieved token" doc:id="82a18a48-5c2f-41fc-88c7-6ba01ded09d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/java
+---
+substringBefore(payload.access_token,"..")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="googleToken" objectStore="#[vars.objectStoreConfig]"/>
+		</body>
+		<output type="any"></output>
+	</operation>
+</module>

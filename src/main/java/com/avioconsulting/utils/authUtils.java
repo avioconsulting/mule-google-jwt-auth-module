@@ -29,6 +29,9 @@ public class authUtils {
 	public static String createJWT(String scopes){
 		String result = "";
 		try {
+			
+			//System.out.println("START");
+			
 			//Find the service account JSON file on the classpath
 			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			URL resource = classLoader.getResource("serviceAccount.json");
@@ -40,6 +43,8 @@ public class authUtils {
 			
 			//Get the current time in milliseconds
 			long nowMs = System.currentTimeMillis();
+			
+			//System.out.println(nowMs);
 			
 			//Read in the private RSA key from the service account JSON file
 			String privKeyString = ((String) creds.get("private_key")).replace("-----BEGIN PRIVATE KEY-----\n", "");
@@ -68,6 +73,8 @@ public class authUtils {
 					.claim("scope", scopes)
 					.signWith(SignatureAlgorithm.RS256, priv)
 					.compact();
+			
+			//System.out.println(signedJwt);
 			 
 			    
 			    result = signedJwt;

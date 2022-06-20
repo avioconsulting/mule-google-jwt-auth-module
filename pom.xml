@@ -3,18 +3,20 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.avioconsulting.mule</groupId>
-	<artifactId>mule-google-jwt-auth-module</artifactId>
-	<version>1.0.0</version>
-	<packaging>mule-application</packaging>
+	<artifactId>mule-jwt-auth-module</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>mule-extension</packaging>
 
-	<name>mule-google-jwt-auth-module</name>
+	<name>mule-jwt-auth-module</name>
+	<description>Set of mule utilities to authorize operations using JSON Web Tokens (JWT)</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-		<app.runtime>4.3.0-20220321</app.runtime>
-		<mule.maven.plugin.version>3.5.2</mule.maven.plugin.version>
+		<mule.extensions.maven.plugin.version>1.5.0-20220125</mule.extensions.maven.plugin.version>
+		<mule.version>4.3.0-20220523</mule.version>
+		<app.runtime>4.3.0-20220523</app.runtime>
+		<mule.maven.plugin.version>3.5.4</mule.maven.plugin.version>
 	</properties>
 
 	<build>
@@ -33,10 +35,39 @@
 					<classifier>mule-plugin</classifier>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.mule.runtime.plugins</groupId>
+				<artifactId>mule-extensions-maven-plugin</artifactId>
+				<version>${mule.extensions.maven.plugin.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<compilerArgs>
+						<args>-parameters</args>
+					</compilerArgs>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.mulesoft.mule.runtime.modules</groupId>
+			<artifactId>mule-module-spring-config-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.runtime</groupId>
+			<artifactId>mule-module-extensions-xml-support</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-http-connector</artifactId>
@@ -96,6 +127,12 @@
 			<version>1.4.5</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
+		<dependency>
+			<groupId>org.mule.module</groupId>
+			<artifactId>mule-java-module</artifactId>
+			<version>1.2.9</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -120,6 +157,12 @@
 			<id>anypoint-exchange-v2</id>
 			<name>Anypoint Exchange</name>
 			<url>https://maven.anypoint.mulesoft.com/api/v2/maven</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>anypoint-exchange-v3</id>
+			<name>Anypoint Exchange V3</name>
+			<url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
