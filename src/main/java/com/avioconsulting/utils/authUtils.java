@@ -36,7 +36,7 @@ public class authUtils {
 			long nowMs = System.currentTimeMillis();
 			
 			//System.out.println("Now in Milliseconds: " + nowMs);
-			//System.out.println("Original key string: " + privKey);
+			//System.out.println("Original key string: " + privateKey);
 				
 			//Use Java security functions to turn the parsed private key into an RSAPrivateKey object
 			KeyFactory kf = KeyFactory.getInstance("RSA");
