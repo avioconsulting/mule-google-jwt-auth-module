@@ -26,37 +26,21 @@ import io.jsonwebtoken.security.Keys;
 public class authUtils {
 	
 	@SuppressWarnings("deprecation")
-	public static String createJWT(String privKeyId, String privKey, String issuer, String user, String scopes, String audience){
+	public static String createJWT(String privateKeyId, String privateKey, String issuer, String user, String scopes, String audience){
 		String result = "";
 		try {
 			
 			//System.out.println("START");
-			
-			//Find the service account JSON file on the classpath
-			/*ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-			URL resource = classLoader.getResource("serviceAccount.json");
-			File file = new File(resource.toURI());*/
-			
-			//Parse the service account JSON using Jackson to put it in a Map
-			/*ObjectMapper mapper = new ObjectMapper();
-			Map<String, Object> creds = mapper.readValue(file, new TypeReference<Map<String,Object>>(){});*/ 
 			
 			//Get the current time in milliseconds
 			long nowMs = System.currentTimeMillis();
 			
 			//System.out.println("Now in Milliseconds: " + nowMs);
 			//System.out.println("Original key string: " + privKey);
-			
-			//Read in the private RSA key from the service account JSON file
-			/*String privKeyString = privKey.replace("-----BEGIN PRIVATE KEY-----\n", "");
-			privKeyString = privKeyString.replace("-----END PRIVATE KEY-----", "");
-			privKeyString = privKeyString.replace("\n", "");
-			
-			System.out.println("Parsed and cleaned key string: " + privKeyString);	*/	
-		
+				
 			//Use Java security functions to turn the parsed private key into an RSAPrivateKey object
 			KeyFactory kf = KeyFactory.getInstance("RSA");
-			byte[] byteKey = Base64.getDecoder().decode(privKey);
+			byte[] byteKey = Base64.getDecoder().decode(privateKey);
 			PKCS8EncodedKeySpec PK8privateKey = new PKCS8EncodedKeySpec(byteKey);
 			RSAPrivateKey priv = (RSAPrivateKey) kf.generatePrivate(PK8privateKey);
 			
@@ -66,7 +50,7 @@ public class authUtils {
 			String signedJwt = Jwts.builder()
 					.setHeaderParam("alg","RS256")
 					.setHeaderParam("typ","JWT")
-					.setHeaderParam("kid",privKeyId)
+					.setHeaderParam("kid",privateKeyId)
 					.setIssuer(issuer)
 					.setAudience(audience)
 					.setExpiration(new Date(nowMs + 3600 * 1000L))
