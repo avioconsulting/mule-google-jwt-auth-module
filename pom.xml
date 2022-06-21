@@ -17,9 +17,55 @@
 		<mule.version>4.3.0-20220523</mule.version>
 		<app.runtime>4.3.0-20220523</app.runtime>
 		<mule.maven.plugin.version>3.5.4</mule.maven.plugin.version>
+		<munit.version>2.3.7</munit.version>
+		<munit.extensions.maven.plugin.version>1.1.2</munit.extensions.maven.plugin.version>
+		<munit.input.directory>src/test/munit</munit.input.directory>
+		<munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
+		<maven.resources.version>3.2.0</maven.resources.version>
 	</properties>
 
 	<build>
+		<!-- <pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.mulesoft.munit</groupId>
+					<artifactId>munit-extensions-maven-plugin</artifactId>
+					<version>${munit.extensions.maven.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>munit-extension-test</id>
+							<phase>integration-test</phase>
+							<goals>
+								<goal>test</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven.resources.version}</version>
+					<executions>
+						<execution>
+							<id>copy-munit-resources</id>
+							<phase>process-test-resources</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${munit.output.directory}</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${munit.input.directory}</directory>
+										<filtering>true</filtering>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement> -->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -51,11 +97,36 @@
 					</compilerArgs>
 					<target>1.8</target>
 				</configuration>
-			</plugin>
+			</plugin>			
 		</plugins>
 	</build>
 
 	<dependencies>
+		<dependency>
+		    <groupId>com.mulesoft.munit</groupId>
+		    <artifactId>munit-extensions-maven-plugin</artifactId>
+		    <version>1.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.munit</groupId>
+			<artifactId>munit-runner</artifactId>
+			<version>2.3.7</version>
+			<classifier>mule-plugin</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.munit</groupId>
+			<artifactId>munit-tools</artifactId>
+			<version>2.3.7</version>
+			<classifier>mule-plugin</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.weave</groupId>
+			<artifactId>assertions</artifactId>
+			<version>1.0.2</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.mulesoft.mule.runtime.modules</groupId>
 			<artifactId>mule-module-spring-config-ee</artifactId>

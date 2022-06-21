@@ -26,55 +26,40 @@ import io.jsonwebtoken.security.Keys;
 public class authUtils {
 	
 	@SuppressWarnings("deprecation")
-	public static String createJWT(String scopes){
+	public static String createJWT(String privateKeyId, String privateKey, String issuer, String user, String scopes, String audience){
 		String result = "";
 		try {
 			
 			//System.out.println("START");
 			
-			//Find the service account JSON file on the classpath
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-			URL resource = classLoader.getResource("serviceAccount.json");
-			File file = new File(resource.toURI());
-			
-			//Parse the service account JSON using Jackson to put it in a Map
-			ObjectMapper mapper = new ObjectMapper();
-			Map<String, Object> creds = mapper.readValue(file, new TypeReference<Map<String,Object>>(){}); 
-			
 			//Get the current time in milliseconds
 			long nowMs = System.currentTimeMillis();
 			
-			//System.out.println(nowMs);
-			
-			//Read in the private RSA key from the service account JSON file
-			String privKeyString = ((String) creds.get("private_key")).replace("-----BEGIN PRIVATE KEY-----\n", "");
-			privKeyString = privKeyString.replace("-----END PRIVATE KEY-----", "");
-			privKeyString = privKeyString.replace("\n", "");
-			
-			//System.out.println(privKeyString);		
-		
+			//System.out.println("Now in Milliseconds: " + nowMs);
+			//System.out.println("Original key string: " + privateKey);
+				
 			//Use Java security functions to turn the parsed private key into an RSAPrivateKey object
 			KeyFactory kf = KeyFactory.getInstance("RSA");
-			byte[] byteKey = Base64.getDecoder().decode(privKeyString);
+			byte[] byteKey = Base64.getDecoder().decode(privateKey);
 			PKCS8EncodedKeySpec PK8privateKey = new PKCS8EncodedKeySpec(byteKey);
 			RSAPrivateKey priv = (RSAPrivateKey) kf.generatePrivate(PK8privateKey);
 			
-			//System.out.println(priv.toString());
+			//System.out.println("RSAPrivateKey: " + priv.toString());
 			
 			//Build JWT for scopes defined by input string
 			String signedJwt = Jwts.builder()
 					.setHeaderParam("alg","RS256")
 					.setHeaderParam("typ","JWT")
-					.setHeaderParam("kid",(String) creds.get("private_key_id"))
-					.setIssuer((String) creds.get("client_email"))
-					.setAudience("https://oauth2.googleapis.com/token")
+					.setHeaderParam("kid",privateKeyId)
+					.setIssuer(issuer)
+					.setAudience(audience)
 					.setExpiration(new Date(nowMs + 3600 * 1000L))
 					.setIssuedAt(new Date(nowMs))
 					.claim("scope", scopes)
 					.signWith(SignatureAlgorithm.RS256, priv)
 					.compact();
 			
-			//System.out.println(signedJwt);
+			//System.out.println("Final JWT: " + signedJwt);
 			 
 			    
 			    result = signedJwt;

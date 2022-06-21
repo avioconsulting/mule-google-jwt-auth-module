@@ -39,11 +39,16 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 		</parameters>
 		
 		<body>
-			<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.authUtils" method="createJWT(String)" target="googleJWT">
-				<java:args ><![CDATA[#[{
-	arg0: vars.scopes
+			<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.authUtils" method="createJWT(String, String, String, String, String, String)" target="googleJWT">
+			<java:args ><![CDATA[#[{
+	arg0: vars.privateKeyId,
+	arg1: vars.privateKey,
+	arg2: vars.issuer,
+	arg3: vars.user,
+	arg4: vars.scopes,
+	arg5: vars.audience
 }]]]></java:args>
-			</java:invoke-static>
+		</java:invoke-static>
 			<mule:choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9" >
 			<mule:when expression='#[vars.googleJWT contains("ERROR:")]'>
 				<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']"/>
