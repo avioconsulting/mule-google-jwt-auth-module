@@ -32,6 +32,8 @@ public class authUtils {
 			
 			//System.out.println("START");
 			
+			//System.out.println("User: " + user);
+			
 			//Get the current time in milliseconds
 			long nowMs = System.currentTimeMillis();
 			
@@ -46,23 +48,42 @@ public class authUtils {
 			
 			//System.out.println("RSAPrivateKey: " + priv.toString());
 			
-			//Build JWT for scopes defined by input string
-			String signedJwt = Jwts.builder()
-					.setHeaderParam("alg","RS256")
-					.setHeaderParam("typ","JWT")
-					.setHeaderParam("kid",privateKeyId)
-					.setIssuer(issuer)
-					.setAudience(audience)
-					.setExpiration(new Date(nowMs + 3600 * 1000L))
-					.setIssuedAt(new Date(nowMs))
-					.claim("scope", scopes)
-					.signWith(SignatureAlgorithm.RS256, priv)
-					.compact();
+			//Build JWT
+			String signedJwt;
+			//If user is given create token w/ subject for impersonation
+			if(user != null || user.equals("")) {
+				signedJwt = Jwts.builder()
+						.setHeaderParam("alg","RS256")
+						.setHeaderParam("typ","JWT")
+						.setHeaderParam("kid",privateKeyId)
+						.setIssuer(issuer)
+						.setSubject(user)
+						.setAudience(audience)
+						.setExpiration(new Date(nowMs + 3600 * 1000L))
+						.setIssuedAt(new Date(nowMs))
+						.claim("scope", scopes)
+						.signWith(SignatureAlgorithm.RS256, priv)
+						.compact();
+			}
+			//If user is not given create token w/o subject
+			else {
+				signedJwt = Jwts.builder()
+						.setHeaderParam("alg","RS256")
+						.setHeaderParam("typ","JWT")
+						.setHeaderParam("kid",privateKeyId)
+						.setIssuer(issuer)
+						.setAudience(audience)
+						.setExpiration(new Date(nowMs + 3600 * 1000L))
+						.setIssuedAt(new Date(nowMs))
+						.claim("scope", scopes)
+						.signWith(SignatureAlgorithm.RS256, priv)
+						.compact();
+			}
+			
 			
 			//System.out.println("Final JWT: " + signedJwt);
 			 
-			    
-			    result = signedJwt;
+				result = signedJwt;
 		}
 		catch(Exception e) {
 			result = "ERROR: " + e.getMessage();

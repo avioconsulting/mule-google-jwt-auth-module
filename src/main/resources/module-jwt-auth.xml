@@ -28,7 +28,7 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 			  order="2" />
 			<parameter name="issuer" type="string" displayName="Issuer" doc:description="Email of user issuing authorization"
 			  example="test-user@gmail.com" order="3" />
-			<parameter name="subject" type="string" displayName="User" doc:description="Email of user performing operation"
+			<parameter name="user" type="string" displayName="User" use="OPTIONAL" doc:description="Email of user performing operation"
               example="test-user@gmail.com" order="4" />
             <parameter name="scopes" type="string" displayName="Scopes" doc:description="Space delimited list of permission scopes"
               example="https://www.googleapis.com/auth/drive" order="5" />
@@ -68,10 +68,9 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 		<ee:transform doc:name="Clean and format recieved token" doc:id="82a18a48-5c2f-41fc-88c7-6ba01ded09d8" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
-import * from dw::core::Strings
 output application/java
 ---
-substringBefore(payload.access_token,"..")]]></ee:set-payload>
+payload.access_token]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="googleToken" objectStore="#[vars.objectStoreConfig]"/>
