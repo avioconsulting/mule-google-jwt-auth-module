@@ -44,7 +44,7 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 	arg0: vars.privateKeyId,
 	arg1: vars.privateKey,
 	arg2: vars.issuer,
-	arg3: vars.user,
+	arg3: vars.user default "",
 	arg4: vars.scopes,
 	arg5: "https://oauth2.googleapis.com/token"
 }]]]></java:args>
