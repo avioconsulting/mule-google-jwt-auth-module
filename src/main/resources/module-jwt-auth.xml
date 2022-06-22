@@ -18,24 +18,23 @@ http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/jav
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd 
 http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/schema/mule/module-jwt-auth/current/mule-module-jwt-auth.xsd">
+
+	<property name="privateKeyId" type="string" displayName="Private Key Id" doc:description="Private Key Id"
+			  order="1"/>
+	<property name="privateKey" type="string" displayName="Private Key" doc:description="RSA Private Key"
+			  order="2" />
+	<property name="issuer" type="string" displayName="Issuer" doc:description="Email of user issuing authorization"
+			  example="test-user@gmail.com" order="3" />
 	
 	<operation name="get-google-access-token" doc:description="Generate a signed JWT to send to Google and receive an access token">
 	
 		<parameters>
-			<parameter name="privateKeyId" type="string" displayName="Private Key Id" doc:description="Private Key Id"
-			  order="1" />
-			<parameter name="privateKey" type="string" displayName="Private Key" doc:description="RSA Private Key"
-			  order="2" />
-			<parameter name="issuer" type="string" displayName="Issuer" doc:description="Email of user issuing authorization"
-			  example="test-user@gmail.com" order="3" />
 			<parameter name="user" type="string" displayName="User" use="OPTIONAL" doc:description="Email of user performing operation"
-              example="test-user@gmail.com" order="4" />
+              example="test-user@gmail.com" order="1" />
             <parameter name="scopes" type="string" displayName="Scopes" doc:description="Space delimited list of permission scopes"
-              example="https://www.googleapis.com/auth/drive" order="5" />
-            <parameter name="audience" type="string" displayName="Audience" doc:description="Intended recipient of JWT"
-              example="https://oauth2.googleapis.com/token" order="6" />
+              example="https://www.googleapis.com/auth/drive" order="2" />
 			<parameter name="objectStoreConfig" type="string" displayName="Object Store Config name"
-              example="object-store" order="7" />
+              example="object-store" order="3" />
 		</parameters>
 		
 		<body>
@@ -46,7 +45,7 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 	arg2: vars.issuer,
 	arg3: vars.user,
 	arg4: vars.scopes,
-	arg5: vars.audience
+	arg5: "https://oauth2.googleapis.com/token"
 }]]]></java:args>
 		</java:invoke-static>
 			<mule:choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9" >
@@ -54,7 +53,7 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 				<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']"/>
 			</mule:when>
 			<mule:otherwise >
-				<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" url="#[vars.audience]" >
+				<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" url="https://oauth2.googleapis.com/token" >
 			<http:query-params><![CDATA[#[output application/java
 ---
 {
