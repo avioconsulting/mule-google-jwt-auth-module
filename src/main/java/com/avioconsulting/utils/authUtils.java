@@ -51,7 +51,7 @@ public class authUtils {
 			//Build JWT
 			String signedJwt;
 			//If user is given create token w/ subject for impersonation
-			if(user != null || user.equals("")) {
+			if(user != null || !(user.equals(""))) {
 				signedJwt = Jwts.builder()
 						.setHeaderParam("alg","RS256")
 						.setHeaderParam("typ","JWT")
