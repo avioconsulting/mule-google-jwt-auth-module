@@ -38,47 +38,73 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 		</parameters>
 		
 		<body>
-			<mule:logger level="INFO" doc:name="Log START" doc:id="6cdf2ed1-d491-45a5-9fcc-a25ea6170918" message="Start JSON Web Token generation" category="com.avioconsulting.modules.jwt.auth"/>
-			<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.authUtils" method="createJWT(String, String, String, String, String, String)" target="googleJWT">
-			<java:args ><![CDATA[#[{
-	arg0: vars.privateKeyId,
-	arg1: vars.privateKey,
-	arg2: vars.issuer,
-	arg3: vars.user default "",
-	arg4: vars.scopes,
-	arg5: "https://oauth2.googleapis.com/token"
-}]]]></java:args>
-		</java:invoke-static>
-		<mule:logger level="DEBUG" doc:name="Log Java code executed" doc:id="1777d2f8-fba8-486a-bea9-40d170026857" message="JWT generation Java code execution complete" category="com.avioconsulting.modules.jwt.auth"/>
-			<mule:choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9" >
-			<mule:when expression='#[vars.googleJWT contains("ERROR:")]'>
-				<mule:logger level="ERROR" doc:name="Log error" doc:id="1da71b81-7a39-4ee5-98af-99cc8ef2c625" message="An error ocurred during Java code execution, raising error" category="com.avioconsulting.modules.jwt.auth"/>
-				<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']"/>
-			</mule:when>
-			<mule:otherwise >
-				<mule:logger level="INFO" doc:name="Log JWT send" doc:id="b52626dd-8c9f-4c21-9182-753cf19eb729" category="com.avioconsulting.modules.jwt.auth" message="Send JWT to Google for authorization"/>
-				<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" url="https://oauth2.googleapis.com/token" >
-			<http:query-params><![CDATA[#[output application/java
----
-{
-	grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-	assertion: vars.googleJWT
+			<mule:logger level="INFO" doc:name="Log START" doc:id="6cdf2ed1-d491-45a5-9fcc-a25ea6170918" message="Start JSON Web Token generation" category="com.avioconsulting.mule.connector.google-jwt-auth "/>
+			<ee:transform doc:name="Create Objectstore Key" doc:id="75ead1b2-f3f7-44a3-95ec-99aefcab54f5" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="tokenKey" ><![CDATA[%dw 2.0
+	import dw::Crypto 
+	output application/java
 	
-}]]]></http:query-params>
-		</http:request>
-			</mule:otherwise>
-		</mule:choice>
-		<mule:logger level="DEBUG" doc:name="Log Google response" doc:id="52d6406a-dbe1-42e3-a44b-102c9852e50d" message="Received response from Google" category="com.avioconsulting.modules.jwt.auth"/>
-		<ee:transform doc:name="Clean and format recieved token" doc:id="82a18a48-5c2f-41fc-88c7-6ba01ded09d8" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/java
----
-payload.access_token]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<mule:logger level="INFO" doc:name="Log object store" doc:id="683c3d6f-1fc8-4d92-b06b-f5c0342d1cd5" category="com.avioconsulting.modules.jwt.auth" message="Storing Google access token on provided object store"/>
-		<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="googleToken" objectStore="#[vars.objectStoreConfig]"/>
+	var cryptoOSKey = Crypto::hashWith((vars.user default "ServiceAccount" ++ "-" ++ vars.scopes) as Binary, "MD5")
+	---
+	"GoogleToken-" ++ vars.user default "ServiceAccount" ++ "-" ++ cryptoOSKey]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<os:retrieve doc:name="Retrieve token" doc:id="d81852eb-d2c8-4a51-915d-d4783357ca67" key="#[vars.tokenKey]" objectStore="Object_store">
+				<os:default-value ><![CDATA[NO_TOKEN]]></os:default-value>
+			</os:retrieve>
+			<mule:choice doc:name="Does token exist &amp; is valid for at least 5 minutes?" doc:id="b506f0ba-0522-4978-8069-59e789ff8b6e" >
+				<mule:when expression='#[payload != "NO_TOKEN" or ((payload.expirationDT as DateTime) &gt; (now() + |PT5M|))]'>
+					<mule:logger level="INFO" doc:name="Log token on OS is fine" doc:id="7f5a58b6-cea0-4585-a9fd-5d14b9ef1ee8" message="Access token exists and is valid" category="com.avioconsulting.mule.connector.google-jwt-auth "/>
+				</mule:when>
+				<mule:otherwise>
+					<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.authUtils" method="createJWT(String, String, String, String, String, String)" target="googleJWT">
+				<java:args><![CDATA[#[{
+			arg0: vars.privateKeyId,
+			arg1: vars.privateKey,
+			arg2: vars.issuer,
+			arg3: vars.user default "",
+			arg4: vars.scopes,
+			arg5: "https://oauth2.googleapis.com/token"
+	}]]]></java:args>
+			</java:invoke-static>
+					<mule:logger level="DEBUG" doc:name="DEBUG Log JWT" doc:id="a1cbdb8d-9166-4884-91be-ef3fc54e24df" message='#["JWT: " ++ vars.googleJWT]' category="com.avioconsulting.mule.connector.google-jwt-auth "/>
+					<mule:choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9">
+				<mule:when expression='#[vars.googleJWT contains("ERROR:")]'>
+					<mule:logger level="ERROR" doc:name="Log error" doc:id="1da71b81-7a39-4ee5-98af-99cc8ef2c625" message="An error ocurred during Java code execution, raising error" category="com.avioconsulting.mule.connector.google-jwt-auth " />
+					<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="APP:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']" />
+				</mule:when>
+						<mule:otherwise>
+					<mule:logger level="INFO" doc:name="Log JWT send" doc:id="b52626dd-8c9f-4c21-9182-753cf19eb729" category="com.avioconsulting.mule.connector.google-jwt-auth " message="Send JWT to Google for authorization" />
+					<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" config-ref="Google_HTTP_Request_configuration" path="/token" sendCorrelationId="NEVER">
+				<http:query-params><![CDATA[#[output application/java
+	---
+	{
+		grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+		assertion: vars.googleJWT
+		
+	}]]]></http:query-params>
+			</http:request>
+				</mule:otherwise>
+			</mule:choice>
+					<ee:transform doc:name="Construct object with expiration timestamp" doc:id="b78b12f1-bc63-4c4e-8d05-5cdc876c4a05">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+	import * from dw::core::Periods
+	output application/java
+	---
+	{
+		token: payload.access_token,
+		expirationDT: now() + seconds(payload.expires_in as Number)
+	}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<mule:logger level="DEBUG" doc:name="DEBUG Log Token Object" doc:id="b0cff9d5-881e-4f30-ab68-a549f4327d10" message='#["Token Object: " ++ payload]' category="com.avioconsulting.mule.connector.google-jwt-auth " />
+					<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="#[vars.tokenKey]" objectStore="Object_store" />
+				</mule:otherwise>
+			</mule:choice>
 		</body>
 		<output type="any"></output>
 	</operation>
