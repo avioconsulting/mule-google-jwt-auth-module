@@ -9,7 +9,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
         xmlns:java="http://www.mulesoft.org/schema/mule/java"
-        xmlns:jwt-auth="http://www.mulesoft.org/schema/mule/module-jwt-auth"        
+        xmlns:google-jwt-auth="http://www.mulesoft.org/schema/mule/module-google-jwt-auth"        
         xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/module http://www.mulesoft.org/schema/mule/module/current/mule-module.xsd 
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd 
@@ -17,7 +17,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd 
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd 
-http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/schema/mule/module-jwt-auth/current/mule-module-jwt-auth.xsd">
+http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.org/schema/mule/module-google-jwt-auth/current/mule-module-google-jwt-auth.xsd">
 
 	<property name="privateKeyId" type="string" displayName="Private Key Id" doc:description="Private Key Id"
 			  order="1"/>
@@ -60,7 +60,7 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 					<mule:logger level="INFO" doc:name="Log token on OS is fine" doc:id="7f5a58b6-cea0-4585-a9fd-5d14b9ef1ee8" message="Access token exists and is valid" category="com.avioconsulting.mule.connector.google-jwt-auth "/>
 				</mule:when>
 				<mule:otherwise>
-					<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.authUtils" method="createJWT(String, String, String, String, String, String)" target="googleJWT">
+					<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.GoogleJWTAuth" method="createJWT(String, String, String, String, String, String)" target="googleJWT">
 				<java:args><![CDATA[#[{
 			arg0: vars.privateKeyId,
 			arg1: vars.privateKey,
@@ -74,10 +74,11 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 					<mule:choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9">
 				<mule:when expression='#[vars.googleJWT contains("ERROR:")]'>
 					<mule:logger level="ERROR" doc:name="Log error" doc:id="1da71b81-7a39-4ee5-98af-99cc8ef2c625" message="An error ocurred during Java code execution, raising error" category="com.avioconsulting.mule.connector.google-jwt-auth " />
-					<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']" />
+					<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-GOOGLE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']" />
 				</mule:when>
 						<mule:otherwise>
 					<mule:logger level="INFO" doc:name="Log JWT send" doc:id="b52626dd-8c9f-4c21-9182-753cf19eb729" category="com.avioconsulting.mule.connector.google-jwt-auth " message="Send JWT to Google for authorization" />
+					<mule:set-payload value="#[null]" doc:name="Clear payload" doc:id="98f45644-39e3-4c73-98f8-3c6a7976cecd" />
 					<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" url="https://oauth2.googleapis.com/token" >
 				<http:query-params><![CDATA[#[output application/java
 	---
@@ -92,12 +93,12 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 					<ee:transform doc:name="Construct object with expiration timestamp" doc:id="b78b12f1-bc63-4c4e-8d05-5cdc876c4a05">
 						<ee:message>
 							<ee:set-payload><![CDATA[%dw 2.0
-	import * from dw::core::Periods
-	output application/java
+	output application/json
+	var numSeconds = payload.expires_in
 	---
 	{
 		token: payload.access_token,
-		expirationDT: now() + seconds(payload.expires_in as Number)
+		expirationDT: now() + ("PT$(numSeconds)S" as Period),
 	}]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>

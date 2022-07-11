@@ -32,16 +32,16 @@ var cryptoOSKey = Crypto::hashWith((vars.user default "ServiceAccount" ++ "-" ++
 			<os:default-value ><![CDATA[NO_TOKEN]]></os:default-value>
 		</os:retrieve>
 		<choice doc:name="Does token exist &amp; is valid for at least 5 minutes?" doc:id="b506f0ba-0522-4978-8069-59e789ff8b6e" >
-			<when expression='#[payload != "NO_TOKEN" or ((payload.expirationDT as DateTime) &gt; (now() + |PT5M|))]'>
+			<when expression='#[payload != "NO_TOKEN" and ((payload.expirationDT as DateTime) &gt; (now() + |PT5M|))]'>
 				<logger level="INFO" doc:name="Log token on OS is fine" doc:id="7f5a58b6-cea0-4585-a9fd-5d14b9ef1ee8" message="Access token exists and is valid" category="com.avioconsulting.mule.connector.google-jwt-auth "/>
 			</when>
 			<otherwise>
-				<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.authUtils" method="createJWT(String, String, String, String, String, String)" target="googleJWT">
+				<java:invoke-static doc:name="Create JWT" doc:id="bd444c83-ee1a-40ea-b45d-2f924cdb40b1" class="com.avioconsulting.utils.GoogleJWTAuth" method="createJWT(String, String, String, String, String, String)" target="googleJWT">
 			<java:args><![CDATA[#[{
 	arg0: vars.privKeyId,
 	arg1: vars.privKey,
 	arg2: vars.issuer,
-	arg3: vars.user,
+	arg3: vars.user default "",
 	arg4: vars.scopes,
 	arg5: vars.audience
 }]]]></java:args>
@@ -54,26 +54,27 @@ var cryptoOSKey = Crypto::hashWith((vars.user default "ServiceAccount" ++ "-" ++
 			</when>
 					<otherwise>
 				<logger level="INFO" doc:name="Log JWT send" doc:id="b52626dd-8c9f-4c21-9182-753cf19eb729" category="com.avioconsulting.mule.connector.google-jwt-auth " message="Send JWT to Google for authorization" />
-				<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" config-ref="Google_HTTP_Request_configuration" path="/token" sendCorrelationId="NEVER">
-			<http:query-params><![CDATA[#[output application/java
----
-{
-	grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-	assertion: vars.googleJWT
-	
-}]]]></http:query-params>
-		</http:request>
+				<set-payload value="#[null]" doc:name="Clear payload" doc:id="98f45644-39e3-4c73-98f8-3c6a7976cecd" />
+						<http:request method="POST" doc:name="Request Token from Google" doc:id="a0d9f065-4974-4eca-bc71-299a07d74f04" url="https://oauth2.googleapis.com/token" >
+				<http:query-params><![CDATA[#[output application/java
+	---
+	{
+		grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+		assertion: vars.googleJWT
+		
+	}]]]></http:query-params>
+			</http:request>
 			</otherwise>
 		</choice>
 				<ee:transform doc:name="Construct object with expiration timestamp" doc:id="b78b12f1-bc63-4c4e-8d05-5cdc876c4a05">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
-import * from dw::core::Periods
-output application/java
+output application/json
+var numSeconds = payload.expires_in
 ---
 {
 	token: payload.access_token,
-	expirationDT: now() + seconds(payload.expires_in as Number)
+	expirationDT: now() + ("PT$(numSeconds)S" as Period),
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
