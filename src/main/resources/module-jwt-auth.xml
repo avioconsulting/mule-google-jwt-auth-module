@@ -78,7 +78,7 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 				</mule:when>
 						<mule:otherwise>
 					<mule:logger level="INFO" doc:name="Log JWT send" doc:id="b52626dd-8c9f-4c21-9182-753cf19eb729" category="com.avioconsulting.mule.connector.google-jwt-auth " message="Send JWT to Google for authorization" />
-					<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" config-ref="Google_HTTP_Request_configuration" path="/token" sendCorrelationId="NEVER">
+					<http:request method="POST" doc:name="Request Token from Google" doc:id="6cc93bc3-5a85-4442-8cd1-f30de2303df3" url="https://oauth2.googleapis.com/token" >
 				<http:query-params><![CDATA[#[output application/java
 	---
 	{
