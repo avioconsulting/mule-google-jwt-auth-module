@@ -56,7 +56,7 @@ http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/sche
 				<os:default-value ><![CDATA[NO_TOKEN]]></os:default-value>
 			</os:retrieve>
 			<mule:choice doc:name="Does token exist &amp; is valid for at least 5 minutes?" doc:id="b506f0ba-0522-4978-8069-59e789ff8b6e" >
-				<mule:when expression='#[payload != "NO_TOKEN" or ((payload.expirationDT as DateTime) &gt; (now() + |PT5M|))]'>
+				<mule:when expression='#[payload != "NO_TOKEN" and ((payload.expirationDT as DateTime) &gt; (now() + |PT5M|))]'>
 					<mule:logger level="INFO" doc:name="Log token on OS is fine" doc:id="7f5a58b6-cea0-4585-a9fd-5d14b9ef1ee8" message="Access token exists and is valid" category="com.avioconsulting.mule.connector.google-jwt-auth "/>
 				</mule:when>
 				<mule:otherwise>
