@@ -23,7 +23,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
-public class authUtils {
+public class GoogleJWTAuth {
 	
 	@SuppressWarnings("deprecation")
 	public static String createJWT(String privateKeyId, String privateKey, String issuer, String user, String scopes, String audience){

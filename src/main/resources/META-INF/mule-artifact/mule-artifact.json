@@ -6,7 +6,7 @@
          "resources-paths":[
             
          ],
-         "resource-xml":"module-jwt-auth.xml"
+         "resource-xml":"module-google-jwt-auth.xml"
       }
    },
    "name":"JWT Auth Smart Connector",
