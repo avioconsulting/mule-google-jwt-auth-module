@@ -7,7 +7,7 @@
 	<version>1.0.0</version>
 	<packaging>mule-extension</packaging>
 
-	<name>mule-jwt-auth-module</name>
+	<name>mule-google-jwt-auth-module</name>
 	<description>Set of mule utilities to authorize operations using JSON Web Tokens (JWT)</description>
 
 	<properties>
