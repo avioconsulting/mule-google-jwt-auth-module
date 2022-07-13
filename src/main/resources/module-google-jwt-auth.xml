@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="Mule JWT Auth Module"
+<module name="Mule Google JWT Auth Module"
         category="PREMIUM"
         xmlns="http://www.mulesoft.org/schema/mule/module"
         xmlns:http="http://www.mulesoft.org/schema/mule/http"
@@ -74,7 +74,7 @@ http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.o
 					<mule:choice doc:name="Choice" doc:id="769f4ed3-1979-420d-97f5-abe3f3a798d9">
 				<mule:when expression='#[vars.googleJWT contains("ERROR:")]'>
 					<mule:logger level="ERROR" doc:name="Log error" doc:id="1da71b81-7a39-4ee5-98af-99cc8ef2c625" message="An error ocurred during Java code execution, raising error" category="com.avioconsulting.mule.connector.google-jwt-auth " />
-					<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']" />
+					<mule:raise-error doc:name="Raise error" doc:id="9e380126-0c7c-4a0e-bcea-32d6031266b6" type="MULE-GOOGLE-JWT-AUTH:JWT_GENERATION" description="#['An error occurred when generating the JSON Web Token to send to Google\'s OAuth service. $(vars.googleJWT)']" />
 				</mule:when>
 						<mule:otherwise>
 					<mule:logger level="INFO" doc:name="Log JWT send" doc:id="b52626dd-8c9f-4c21-9182-753cf19eb729" category="com.avioconsulting.mule.connector.google-jwt-auth " message="Send JWT to Google for authorization" />
