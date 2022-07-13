@@ -103,7 +103,7 @@ http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.o
 						</ee:message>
 					</ee:transform>
 					<mule:logger level="DEBUG" doc:name="DEBUG Log Token Object" doc:id="b0cff9d5-881e-4f30-ab68-a549f4327d10" message='#["Token Object: " ++ payload]' category="com.avioconsulting.mule.connector.google-jwt-auth " />
-					<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="#[vars.tokenKey]" objectStore="Object_store" />
+					<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="#[vars.tokenKey]" objectStore="#[vars.objectStoreConfig]" />
 				</mule:otherwise>
 			</mule:choice>
 		</body>
