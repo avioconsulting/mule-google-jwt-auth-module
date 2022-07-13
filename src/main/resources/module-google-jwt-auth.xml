@@ -52,7 +52,7 @@ http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.o
 	"GoogleToken-" ++ vars.user default "ServiceAccount" ++ "-" ++ cryptoOSKey]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-			<os:retrieve doc:name="Retrieve token" doc:id="d81852eb-d2c8-4a51-915d-d4783357ca67" key="#[vars.tokenKey]" objectStore="Object_store">
+			<os:retrieve doc:name="Retrieve token" doc:id="d81852eb-d2c8-4a51-915d-d4783357ca67" key="#[vars.tokenKey]" objectStore="#[vars.objectStoreConfig]">
 				<os:default-value ><![CDATA[NO_TOKEN]]></os:default-value>
 			</os:retrieve>
 			<mule:choice doc:name="Does token exist &amp; is valid for at least 5 minutes?" doc:id="b506f0ba-0522-4978-8069-59e789ff8b6e" >
