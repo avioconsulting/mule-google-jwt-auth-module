@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:jwt-auth="http://www.mulesoft.org/schema/mule/module-jwt-auth"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+		http://www.mulesoft.org/schema/mule/module-jwt-auth http://www.mulesoft.org/schema/mule/module-jwt-auth/current/mule-module-jwt-auth.xsd">
+	<munit:config name="jwt-auth-test-suite.xml" />
+	<!-- <munit:test name="test1" doc:id="7a7946eb-b3af-4010-81c3-7f89f8ebecef" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock HTTP Request" doc:id="3d651f65-a23f-460c-b5f9-d9c46c31b505" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Request Token from Google" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="c3330b97-f725-493a-b003-2ff21b0a455d" >
+				<munit:variables >
+					<munit:variable key="privateKeyId" value="c35c2e79ecd3867d4c46ca33b82329ea3608b5b2" />
+					<munit:variable key="privateKey" value="-&#45;&#45;&#45;&#45;BEGIN PRIVATE KEY-&#45;&#45;&#45;&#45;\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC1iCplcptBuDzE\n2yH5kgWTiYgPSvw+AOo3kPY09X71BlO8ygbYHCJG43XLFtOakXEFyE26X33MmNQV\n+rr8RntFiRcdtGPHkEB/8ece9e/1M28z4tbrvpl+dpviL90M/uEy7N+YnJkmVAOu\nyBAsuDes2D22EOreBa7tcxvaqYa/bksVF8iMVrLmuha/jKQnJvHkVnDwdf84rlI8\n9NaoEicFeFHzLFfUw1NnJpsQcaehsZN5ze20hBA8F0/O/dpc+YOq7Q+USK82ws0a\n5l/NJB4rIw0e+nURadCnz5raJfBhjM+uY4x5K2mYp4dmEhniG12nRg66ZCzVbM7l\nOXEUsNXvAgMBAAECggEARyXlJ/mxLCLffnA8cqpukRK4RvYmws5s/fZM6RjG95XR\nQA8We6EbNhl0U3LQ4KXcXF3TSRagIY5MoYixvKqLKge/DZ9j9BVvkjXnVdUihUHx\nda6UebUsR8qI8i+8PZmv/dulDxVhWQpYnyo+XKie+ZmPJkqfIwGrO9l/s0X6UBBq\nCIHzJvTAu3sS+acLW6ho8/I7zbwjMzg1deH/ArI9MOQLlyb8kIOc1Aowh4uekQSx\n0zo0YsiaRc4qNdWqm0sj0Do6iUHbgm55E7H7RD/YZCIMNzekqpxxaaUmosQzE6k4\nCE+/qSWSaFV+iHWfERWPmkXiyDD/F8rGKKKCNYR0kQKBgQD0BzQjWsgSZK1aA26Z\nhGXLgto2eN7ps9PyCWBqLMsqnsW25ovISD5lYStAXnZJB8TKvryTpat1YMxxUXOS\nXKR7jzrpudLmhxUhsNc8z6sRIfy0ZtPBjZN/J1zJN3s5bGW8tOJcKS+gZT17aD7n\naSQBhqUNF5+Jl2nFzUtI9ea+uwKBgQC+cA9DHS+/s20CX6XV0346h5DDDHNf6lui\nf3NJQMLpJ46zkzB65zuVL26zesktUgipefxyJa31JjJKoIs2tbSUYh5vuvZDv/va\nE2tqxEYdma4MFYny8HsqEsV1XcABNacquDTJIU7Z8g4G/SA0BTBcjDZvEUJXsCtw\nthehA43kXQKBgGiQVaT4l1ZaUXWKlu+tLblAfqRssofNiHnjzq5wNzYyBmJS836E\nhkgGlPPmBiVQ8OA3TrKtgISxT6kWz8DddZWEUCgqedZR95oSHohuK80RlSjwDriX\nI6aOhVGrNl/qtMVhdMUs2L2P5AJnLt0VzlnhCgRMJQ5eFPKu/x1qUM9VAoGBAIml\n4cI29G5xuFdA31Mg3Vpc5ou1Eie/86AO0zudbcSs7P5rY11SicSZVkCwfX0ekFg/\nbfLrvUM26p76T+WpjO67xRgpYRszR00nQDsZxzxZ+m2Nm/pXTA7rJoJg0wmMyFme\nb7j5NE9gIDd4+q/fGEesqSO6q+NJ2PxNAeNF+GeZAoGAYcpwj/+striUWraO5hoV\n9l96fw45h+al6oerhcIfbY8/Nb8AvfDKCpmNBplbD0lnUTR7LNql4z9mNfXtNxAr\n/cCDiJMeJdA9sI9OF1zDUMZAFFVou3EfuYM/mDj/PexqWuyOCdEsVggd6an1eOvc\nc/n2zrWMDT2CupawQtAAKUE=\n-&#45;&#45;&#45;&#45;END PRIVATE KEY-&#45;&#45;&#45;&#45;\n" />
+					<munit:variable key="issuer" value="directory-admin@avio-integrations.iam.gserviceaccount.com" />
+					<munit:variable key="subject" value="directory-admin@avio-integrations.iam.gserviceaccount.com" />
+					<munit:variable key="scopes" value="https://www.googleapis.com/auth/drive" />
+					<munit:variable key="audience" value="https://oauth2.googleapis.com/token" />
+					<munit:variable key="objectStoreConfig" value="Object_store" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="get-google-access-token-flow" doc:id="bca626da-7ab8-4071-bb22-f348cc85fa42" name="get-google-access-token-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="fa3e82f9-feca-4b3a-8f40-b29d9044058d" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<flow name="get-google-access-token-flow" doc:id="b9d3244e-d407-4b17-beb2-59712ddd6ce4" >
+		<jwt-auth:get-google-access-token />
+	</flow> -->
+
+
+</mule>

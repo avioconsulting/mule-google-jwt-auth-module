@@ -1,0 +1,32 @@
+{
+   "extensionModelLoaderDescriptor":{
+      "id":"xml-based",
+      "attributes":{
+         "validate-xml":true,
+         "resources-paths":[
+            
+         ],
+         "resource-xml":"module-google-jwt-auth.xml"
+      }
+   },
+   "name":"JWT Auth Smart Connector",
+   "requiredProduct":"MULE_EE",
+   "classLoaderModelLoaderDescriptor":{
+      "id":"mule",
+      "attributes":{
+         "exportedResources":[
+            
+         ],
+         "exportedPackages":[
+            "com.avioconsulting.utils"
+         ]
+      }
+   },
+   "bundleDescriptorLoader":{
+      "id":"mule",
+      "attributes":{
+         
+      }
+   },
+   "minMuleVersion":"4.3.0"
+}
