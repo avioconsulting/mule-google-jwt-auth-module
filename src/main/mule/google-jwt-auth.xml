@@ -65,18 +65,8 @@ var cryptoOSKey = Crypto::hashWith((vars.user default "ServiceAccount" ++ "-" ++
 			</http:request>
 			</otherwise>
 		</choice>
-				<ee:transform doc:name="Construct object with expiration timestamp" doc:id="b78b12f1-bc63-4c4e-8d05-5cdc876c4a05">
-					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
-output application/json
-var numSeconds = payload.expires_in
----
-{
-	token: payload.access_token,
-	expirationDT: now() + ("PT$(numSeconds)S" as Period),
-}]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
+				<logger level="DEBUG" doc:name="Log Response" doc:id="d902660c-772b-413b-a7d8-b4bcaccc0de2" message='#["Google Response: " ++ payload]' category="com.avioconsulting.mule.connector.google-jwt-auth " />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;var numSeconds = payload.expires_in&#10;---&#10;{&#10;	token: payload.access_token,&#10;	expirationDT: now() + ("PT$(numSeconds)S" as Period),&#10;}]' doc:name="Construct object with expiration timestamp" doc:id="fdfff642-1502-4b74-b3f3-d331f80433d2" />
 				<logger level="DEBUG" doc:name="Log Token" doc:id="b0cff9d5-881e-4f30-ab68-a549f4327d10" message='#["Storing Access Token: " ++ payload]' category="com.avioconsulting.mule.connector.google-jwt-auth " />
 				<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="#[vars.tokenKey]" objectStore="Object_store" />
 			</otherwise>
