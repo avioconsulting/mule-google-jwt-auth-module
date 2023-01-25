@@ -207,12 +207,24 @@
 			<url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
 			<layout>default</layout>
 		</repository>
+		<repository>
+			<id>avio-mule-ee-releases</id>
+			<name>AVIO MuleEE Releases Repository</name>
+			<url>https://devops.avioconsulting.com/nexus/repository/mulesoft-ee-releases/</url>
+			<layout>default</layout>
+		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>mulesoft-ee-releases</id>
 			<name>mulesoft-ee-releases</name>
 			<url>https://repository.mulesoft.org/nexus-ee/content/repositories/releases-ee/</url>
+			<layout>default</layout>
+		</pluginRepository>
+		<pluginRepository>
+			<id>avio-mule-ee-releases</id>
+			<name>AVIO MuleEE Releases Repository</name>
+			<url>https://devops.avioconsulting.com/nexus/repository/mulesoft-ee-releases/</url>
 			<layout>default</layout>
 		</pluginRepository>
 		<pluginRepository>
