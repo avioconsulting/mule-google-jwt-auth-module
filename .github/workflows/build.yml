@@ -22,17 +22,15 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 1.8 for build and unit test
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
+          distribution: adopt-hotspot
           java-version: 8
           cache: maven
-          server-id: ossrh
-          server-username: OSSRH_USERNAME
-          server-password: OSSRH_PASSWORD
-          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          gpg-passphrase:  MAVEN_GPG_PASSPHRASE
+          server-id: mulesoft-ee-releases 
+          server-username: MULE_EE_USERNAME 
+          server-password: MULE_EE_PASSWORD
 
       - name: Set Version
         id: set-version
@@ -43,9 +41,15 @@ jobs:
 
       - name: Compile
         run: ./mvnw compile
+        env: 
+          MULE_EE_USERNAME: ${{ secrets.MULE_EE_USERNAME }}
+          MULE_EE_PASSWORD: ${{ secrets.MULE_EE_PASSWORD }}
 
       - name: Verify
         run: ./mvnw --batch-mode verify
+        env: 
+          MULE_EE_USERNAME: ${{ secrets.MULE_EE_USERNAME }}
+          MULE_EE_PASSWORD: ${{ secrets.MULE_EE_PASSWORD }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -53,6 +57,18 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           junit_files: ./**/surefire-reports/*.xml
+
+      - name: Set up JDK 1.8 for maven central publish
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt-hotspot
+          java-version: 8
+          cache: maven
+          server-id: ossrh
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase:  MAVEN_GPG_PASSPHRASE
 
       - name: Publish to Maven Central
         id: publish-to-maven-central
