@@ -4,7 +4,7 @@
 
 	<groupId>com.avioconsulting.mule</groupId>
 	<artifactId>mule-google-jwt-auth-module</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>mule-extension</packaging>
 
 	<name>mule-google-jwt-auth-module</name>
@@ -21,47 +21,6 @@
 	</properties>
 
 	<build>
-		<!-- <pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>com.mulesoft.munit</groupId>
-					<artifactId>munit-extensions-maven-plugin</artifactId>
-					<version>${munit.extensions.maven.plugin.version}</version>
-					<executions>
-						<execution>
-							<id>munit-extension-test</id>
-							<phase>integration-test</phase>
-							<goals>
-								<goal>test</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-resources-plugin</artifactId>
-					<version>${maven.resources.version}</version>
-					<executions>
-						<execution>
-							<id>copy-munit-resources</id>
-							<phase>process-test-resources</phase>
-							<goals>
-								<goal>copy-resources</goal>
-							</goals>
-							<configuration>
-								<outputDirectory>${munit.output.directory}</outputDirectory>
-								<resources>
-									<resource>
-										<directory>${munit.input.directory}</directory>
-										<filtering>true</filtering>
-									</resource>
-								</resources>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement> -->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -227,25 +186,28 @@
 	</pluginRepositories>
 	<distributionManagement>
 		<repository>
-			<id>avio-releases</id>
-			<name>avio-releases</name>
-			<url>https://devops.avioconsulting.com/nexus/repository/avio-releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>avio-snapshots</id>
-			<name>avio-snapshots</name>
-			<url>https://devops.avioconsulting.com/nexus/repository/avio-snapshots/</url>
-		</snapshotRepository>
+            <id>ossrh</id>
+            <url>${nexus.url}/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>${nexus.url}/content/repositories/snapshots</url>
+        </snapshotRepository>
 	</distributionManagement>
 	<profiles>
 		<profile>
 			<id>exchange</id>
 			<distributionManagement>
 				<repository>
-					<id>anypoint-exchange</id>
-					<name>Exchange Repository</name>
-					<url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
-				</repository>
+                    <id>anypoint-exchange</id>
+                    <name>Exchange Repository</name>
+                    <url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
+                </repository>
+                <snapshotRepository>
+                    <id>anypoint-exchange</id>
+                    <name>Exchange Repository</name>
+                    <url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
+                </snapshotRepository>
 			</distributionManagement>
 		</profile>
 	</profiles>
