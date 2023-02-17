@@ -4,13 +4,15 @@
 
 	<groupId>com.avioconsulting.mule</groupId>
 	<artifactId>mule-google-jwt-auth-module</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>mule-extension</packaging>
 
 	<name>mule-google-jwt-auth-module</name>
 	<description>Set of mule utilities to authorize operations using JSON Web Tokens (JWT)</description>
 
 	<properties>
+		<project.github.repository>avioconsulting/mule-google-jwt-auth-module</project.github.repository>
+		<repository.url>git@github.com:${project.github.repository}.git</repository.url>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<mule.extensions.maven.plugin.version>1.5.0-20220125</mule.extensions.maven.plugin.version>
