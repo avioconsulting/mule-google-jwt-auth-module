@@ -9,7 +9,7 @@
 
 	<name>mule-google-jwt-auth-module</name>
 	<description>Set of mule utilities to authorize operations using JSON Web Tokens (JWT)</description>
-
+	<url>https://github.com/${project.github.repository}</url>
 	<properties>
 		<project.github.repository>avioconsulting/mule-google-jwt-auth-module</project.github.repository>
 		<repository.url>git@github.com:${project.github.repository}.git</repository.url>
