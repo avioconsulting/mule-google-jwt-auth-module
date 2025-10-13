@@ -16,7 +16,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<mule.extensions.maven.plugin.version>1.10.0</mule.extensions.maven.plugin.version>
-		<mule.version>4.9.9</mule.version>
+		<mule.version>4.9.7</mule.version>
 		<mule.maven.plugin.version>4.6.0</mule.maven.plugin.version>
 		<maven.resources.version>3.2.0</maven.resources.version>
 		<nexus.url>https://oss.sonatype.org</nexus.url>
