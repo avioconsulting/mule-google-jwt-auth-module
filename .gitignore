@@ -48,3 +48,4 @@ target/
 velocity.log
 .classpath
 .project
+.idea/

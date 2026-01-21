@@ -4,21 +4,63 @@
 
 	<groupId>com.avioconsulting.mule</groupId>
 	<artifactId>mule-google-jwt-auth-module</artifactId>
-	<version>1.0.2</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>mule-extension</packaging>
 
 	<name>mule-google-jwt-auth-module</name>
 	<description>Set of mule utilities to authorize operations using JSON Web Tokens (JWT)</description>
-
+	<url>https://github.com/${project.github.repository}</url>
 	<properties>
+		<project.github.repository>avioconsulting/mule-google-jwt-auth-module</project.github.repository>
+		<repository.url>git@github.com:${project.github.repository}.git</repository.url>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<mule.extensions.maven.plugin.version>1.8.0</mule.extensions.maven.plugin.version>
-		<mule.version>4.4.0-20220824</mule.version>
-		<app.runtime>4.4.0-20220824</app.runtime>
-		<mule.maven.plugin.version>4.2.0</mule.maven.plugin.version>
-		<maven.resources.version>3.3.1</maven.resources.version>
+		<mule.extensions.maven.plugin.version>1.10.0</mule.extensions.maven.plugin.version>
+		<mule.version>4.9.9</mule.version>
+		<mule.maven.plugin.version>4.6.0</mule.maven.plugin.version>
+		<maven.resources.version>3.2.0</maven.resources.version>
+		<nexus.url>https://oss.sonatype.org</nexus.url>
+		<maven.compiler.source>1.8</maven.compiler.source>
+	        <maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
+
+	<developers>
+        <developer>
+            <name>Adam DesJardin</name>
+            <email>adesjardin@avioconsulting.com</email>
+            <organization>AVIO Consulting</organization>
+            <organizationUrl>https://www.avioconsulting.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>David Wouch</name>
+            <email>dwouch@avioconsulting.com</email>
+            <organization>AVIO Consulting</organization>
+            <organizationUrl>https://www.avioconsulting.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <organization>
+        <name>AVIO Consulting</name>
+        <url>https://www.avioconsulting.com</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>BSD-2-Clause</name>
+            <url>https://opensource.org/licenses/BSD-2-Clause</url>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>github.com</system>
+        <url>https://github.com/${project.github.repository}/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:${repository.url}</connection>
+        <developerConnection>scm:ssh:${repository.url}</developerConnection>
+        <url>${repository.url}</url>
+    </scm>
 
 	<build>
 		<plugins>
@@ -73,19 +115,19 @@
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-objectstore-connector</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.4</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.mule.module</groupId>
 			<artifactId>mule-java-module</artifactId>
-			<version>1.2.10</version>
+			<version>2.0.2</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-http-connector</artifactId>
-			<version>1.7.2</version>
+			<version>1.11.0</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>
@@ -120,6 +162,12 @@
 			<url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
 			<layout>default</layout>
 		</repository>
+		<repository>
+            <id>Central</id>
+            <name>Central</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+        </repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -140,25 +188,98 @@
 	</pluginRepositories>
 	<distributionManagement>
 		<repository>
-			<id>avio-releases</id>
-			<name>avio-releases</name>
-			<url>https://devops.avioconsulting.com/nexus/repository/avio-releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>avio-snapshots</id>
-			<name>avio-snapshots</name>
-			<url>https://devops.avioconsulting.com/nexus/repository/avio-snapshots/</url>
-		</snapshotRepository>
+            <id>ossrh</id>
+            <url>${nexus.url}/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>${nexus.url}/content/repositories/snapshots</url>
+        </snapshotRepository>
 	</distributionManagement>
 	<profiles>
+		<profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <gpg.executable>gpg</gpg.executable>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>${nexus.url}</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <!-- Prevent gpg from using pinentry programs -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 		<profile>
 			<id>exchange</id>
 			<distributionManagement>
 				<repository>
-					<id>anypoint-exchange</id>
-					<name>Exchange Repository</name>
-					<url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
-				</repository>
+                    <id>anypoint-exchange</id>
+                    <name>Exchange Repository</name>
+                    <url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
+                </repository>
+                <snapshotRepository>
+                    <id>anypoint-exchange</id>
+                    <name>Exchange Repository</name>
+                    <url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
+                </snapshotRepository>
 			</distributionManagement>
 		</profile>
 	</profiles>

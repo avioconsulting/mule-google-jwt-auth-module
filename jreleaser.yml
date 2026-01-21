@@ -1,0 +1,80 @@
+project:
+  name: mule-google-jwt-auth-module
+  description: Mule Extension to generate Google JWT Auth Token
+  longDescription: |
+    The purpose of this Mule extension is to allow generating Google JWT Auth Token.
+
+  links:
+    homepage: https://github.com/avioconsulting/
+    documentation: https://avioconsulting.github.io/mule-google-jwt-auth-module/
+    license: https://github.com/avioconsulting/mule-google-jwt-auth-module/blob/main/LICENSE
+    contribute: https://github.com/avioconsulting/mule-google-jwt-auth-module/blob/main/CONTRIBUTING.adoc
+  authors:
+    - Adam DesJardin
+    - David Wouch
+  license: BSD 2-Clause
+  inceptionYear: "2022"
+  tags:
+    - mule
+    - JWT
+  java:
+    groupId: com.avioconsulting.mule
+    version: "8"
+
+release:
+  github:
+    owner: 'avioconsulting'
+    overwrite: true
+    draft: false
+    sign: true
+    releaseName: '{{tagName}}'
+    skipTag: false
+    milestone:
+      close: false
+    changelog:
+      skipMergeCommits: true
+      formatted: ALWAYS
+      preset: conventional-commits
+      format: '- {{commitShortHash}} {{commitTitle}}'
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+      labelers:
+        - label: 'bot-commits'
+          contributor: 'regex:^.*(\[bot\])$'
+        - label: 'dependencies'
+          title: 'deps:'
+          order: 130
+      excludeLabels:
+        - 'bot-commits'
+      categories:
+        - title: '⚙️  Dependencies'
+          key: 'dependencies'
+          order: 80
+          labels:
+            - 'dependencies'
+      hide:
+        categories:
+          - 'merge'
+        contributors:
+          - 'GitHub'
+          - '^.*(\[bot\])$'
+      replacers:
+        - search: 'feat: '
+        - search: 'fix: '
+        - search: 'chore: '
+        - search: 'deps: '
+        - search: 'test: '
+        - search: 'docs: '
+
+checksum:
+  individual: true
+
+signing:
+  active: ALWAYS
+  armored: true
+  mode: MEMORY
+
+distributions:
+  mule-health-check-api:
+    artifacts:
+      - path: target/mule-google-jwt-auth-module-{{projectVersion}}-mule-plugin.jar
