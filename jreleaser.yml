@@ -75,6 +75,6 @@ signing:
   mode: MEMORY
 
 distributions:
-  mule-health-check-api:
+  mule-google-jwt-auth-module:
     artifacts:
       - path: target/mule-google-jwt-auth-module-{{projectVersion}}-mule-plugin.jar
