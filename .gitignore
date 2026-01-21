@@ -49,3 +49,5 @@ velocity.log
 .classpath
 .project
 .idea/
+
+*.xml.versionsBackup
