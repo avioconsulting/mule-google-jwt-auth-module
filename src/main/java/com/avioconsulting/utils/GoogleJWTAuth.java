@@ -1,94 +1,63 @@
 package com.avioconsulting.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.URL;
-import java.lang.ClassLoader;
-import java.security.PrivateKey;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
-import java.util.Date;
-import java.util.Map;
-import java.security.Key;
-import java.security.KeyFactory;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 
 public class GoogleJWTAuth {
-	
-	@SuppressWarnings("deprecation")
-	public static String createJWT(String privateKeyId, String privateKey, String issuer, String user, String scopes, String audience){
-		String result = "";
-		try {
-			
-			//System.out.println("START");
-			
-			//System.out.println("User: " + user);
-			
-			//Get the current time in milliseconds
-			long nowMs = System.currentTimeMillis();
-			
-			//System.out.println("Now in Milliseconds: " + nowMs);
-			//System.out.println("Original key string: " + privateKey);
-				
-			//Use Java security functions to turn the parsed private key into an RSAPrivateKey object
-			KeyFactory kf = KeyFactory.getInstance("RSA");
-			byte[] byteKey = Base64.getDecoder().decode(privateKey);
-			PKCS8EncodedKeySpec PK8privateKey = new PKCS8EncodedKeySpec(byteKey);
-			RSAPrivateKey priv = (RSAPrivateKey) kf.generatePrivate(PK8privateKey);
-			
-			//System.out.println("RSAPrivateKey: " + priv.toString());
-			
-			//Build JWT
-			String signedJwt;
-			//If user is given create token w/ subject for impersonation
-			if(user != null || !(user.equals(""))) {
-				signedJwt = Jwts.builder()
-						.setHeaderParam("alg","RS256")
-						.setHeaderParam("typ","JWT")
-						.setHeaderParam("kid",privateKeyId)
-						.setIssuer(issuer)
-						.setSubject(user)
-						.setAudience(audience)
-						.setExpiration(new Date(nowMs + 3600 * 1000L))
-						.setIssuedAt(new Date(nowMs))
-						.claim("scope", scopes)
-						.signWith(SignatureAlgorithm.RS256, priv)
-						.compact();
-			}
-			//If user is not given create token w/o subject
-			else {
-				signedJwt = Jwts.builder()
-						.setHeaderParam("alg","RS256")
-						.setHeaderParam("typ","JWT")
-						.setHeaderParam("kid",privateKeyId)
-						.setIssuer(issuer)
-						.setAudience(audience)
-						.setExpiration(new Date(nowMs + 3600 * 1000L))
-						.setIssuedAt(new Date(nowMs))
-						.claim("scope", scopes)
-						.signWith(SignatureAlgorithm.RS256, priv)
-						.compact();
-			}
-			
-			
-			//System.out.println("Final JWT: " + signedJwt);
-			 
-				result = signedJwt;
-		}
-		catch(Exception e) {
-			result = "ERROR: " + e.getMessage();
-		}
-		    
-		    return result;
-	}
+
+    public static String createJWT(String privateKeyId, String privateKey, String issuer, String user, String scopes, String audience) {
+        try {
+            // 1. Prepare Key
+            // Strip any PEM headers/footers if present (just in case, though usually passed raw base64)
+            String cleanKey = privateKey.replace("-----BEGIN PRIVATE KEY-----", "")
+                                      .replace("-----END PRIVATE KEY-----", "")
+                                      .replaceAll("\\s+", "");
+            
+            byte[] keyBytes = Base64.getDecoder().decode(cleanKey);
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) kf.generatePrivate(spec);
+
+            // 2. Create Header
+            // {"alg":"RS256","typ":"JWT","kid":"<privateKeyId>"}
+            String headerJson = "{\"alg\":\"RS256\",\"typ\":\"JWT\",\"kid\":\"" + privateKeyId + "\"}";
+            String headerEncoded = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
+
+            // 3. Create Payload
+            long now = System.currentTimeMillis() / 1000;
+            long exp = now + 3600; // 1 hour expiration
+            
+            // Build JSON manually to avoid Jackson dependency
+            StringBuilder payload = new StringBuilder();
+            payload.append("{");
+            payload.append("\"iss\":\"").append(issuer).append("\",");
+            if (user != null && !user.isEmpty()) {
+                payload.append("\"sub\":\"").append(user).append("\",");
+            }
+            payload.append("\"aud\":\"").append(audience).append("\",");
+            payload.append("\"exp\":").append(exp).append(",");
+            payload.append("\"iat\":").append(now).append(",");
+            payload.append("\"scope\":\"").append(scopes).append("\"");
+            payload.append("}");
+            
+            String payloadEncoded = Base64.getUrlEncoder().withoutPadding().encodeToString(payload.toString().getBytes(StandardCharsets.UTF_8));
+
+            // 4. Sign
+            String content = headerEncoded + "." + payloadEncoded;
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(rsaPrivateKey);
+            signature.update(content.getBytes(StandardCharsets.UTF_8));
+            byte[] signBytes = signature.sign();
+            String signatureEncoded = Base64.getUrlEncoder().withoutPadding().encodeToString(signBytes);
+
+            return content + "." + signatureEncoded;
+
+        } catch (Exception e) {
+            return "ERROR: " + e.getMessage();
+        }
+    }
 }

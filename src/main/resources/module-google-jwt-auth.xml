@@ -25,6 +25,11 @@ http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.o
 			  order="2" />
 	<property name="issuer" type="string" displayName="Issuer" doc:description="Email of user issuing authorization"
 			  example="test-user@gmail.com" order="3" />
+
+	<os:object-store name="_InternalGoogleTokenStore"
+		entryTtl="58"
+		entryTtlUnit="MINUTES"
+		persistent="false"/>
 	
 	<operation name="get-google-access-token" doc:description="Generate a signed JWT to send to Google and receive an access token">
 	
@@ -33,7 +38,7 @@ http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.o
               example="test-user@gmail.com" order="1" />
             <parameter name="scopes" type="string" displayName="Scopes" doc:description="Space delimited list of permission scopes"
               example="https://www.googleapis.com/auth/drive" order="2" />
-			<parameter name="objectStoreConfig" type="string" displayName="Object Store Config name"
+			<parameter name="objectStoreConfig" type="string" displayName="Object Store Config name" use="OPTIONAL"
               example="object-store" order="3" />
 		</parameters>
 		
@@ -50,9 +55,13 @@ http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.o
 	var cryptoOSKey = Crypto::hashWith((vars.user default "ServiceAccount" ++ "-" ++ vars.scopes) as Binary, "MD5")
 	---
 	"GoogleToken-" ++ vars.user default "ServiceAccount" ++ "-" ++ cryptoOSKey]]></ee:set-variable>
+					<ee:set-variable variableName="finalOSConfig" ><![CDATA[%dw 2.0
+	output application/java
+	---
+	if (vars.objectStoreConfig != null and vars.objectStoreConfig != "") vars.objectStoreConfig else "_InternalGoogleTokenStore"]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-			<os:retrieve doc:name="Retrieve token" doc:id="d81852eb-d2c8-4a51-915d-d4783357ca67" key="#[vars.tokenKey]" objectStore="#[vars.objectStoreConfig]">
+			<os:retrieve doc:name="Retrieve token" doc:id="d81852eb-d2c8-4a51-915d-d4783357ca67" key="#[vars.tokenKey]" objectStore="#[vars.finalOSConfig]">
 				<os:default-value ><![CDATA[NO_TOKEN]]></os:default-value>
 			</os:retrieve>
 			<mule:choice doc:name="Does token exist &amp; is valid for at least 5 minutes?" doc:id="b506f0ba-0522-4978-8069-59e789ff8b6e" >
@@ -93,7 +102,7 @@ http://www.mulesoft.org/schema/mule/module-google-jwt-auth http://www.mulesoft.o
 					<mule:logger level="DEBUG" doc:name="Log Response" doc:id="59db7598-19cf-4654-8000-99ee93181fa3" message='#["Google Response: " ++ payload]' category="com.avioconsulting.mule.connector.google-jwt-auth" />
 					<mule:set-payload value='#[%dw 2.0&#10;output application/json&#10;var numSeconds = payload.expires_in&#10;---&#10;{&#10;	token: payload.access_token,&#10;	expirationDT: now() + ("PT$(numSeconds)S" as Period),&#10;}]' doc:name="Construct object with expiration timestamp" doc:id="fdfff642-1502-4b74-b3f3-d331f80433d2" />
 					<mule:logger level="DEBUG" doc:name="DEBUG Log Token Object" doc:id="b0cff9d5-881e-4f30-ab68-a549f4327d10" message='#["Token Object: " ++ payload]' category="com.avioconsulting.mule.connector.google-jwt-auth" />
-					<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="#[vars.tokenKey]" objectStore="#[vars.objectStoreConfig]" />
+					<os:store doc:name="Store Access Token Response" doc:id="b0dce7d5-41c6-4a64-a160-f8096d1efa28" key="#[vars.tokenKey]" objectStore="#[vars.finalOSConfig]" />
 				</mule:otherwise>
 			</mule:choice>
 		</body>
