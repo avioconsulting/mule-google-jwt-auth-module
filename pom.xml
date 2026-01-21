@@ -175,6 +175,11 @@
         <version>${mule.extensions.maven.plugin.version}</version>
         <extensions>true</extensions>
       </plugin>
+      <plugin>
+        <groupId>com.mulesoft.munit</groupId>
+        <artifactId>munit-extensions-maven-plugin</artifactId>
+        <version>1.6.1</version>
+      </plugin>
     </plugins>
   </build>
   <profiles>
