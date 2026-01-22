@@ -27,7 +27,7 @@ var cryptoOSKey = Crypto::hashWith((vars.user default "ServiceAccount" ++ "-" ++
 "GoogleToken-" ++ vars.user default "ServiceAccount" ++ "-" ++ cryptoOSKey]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<logger level="INFO" doc:name="Log Token Key" doc:id="6cdf2ed1-d491-45a5-9fcc-a25ea6170918" message='#["Retreiving token from object store with key: " ++ vars.tokenKey as String]' category="com.avioconsulting.mule.connector.google-jwt-auth " />
+		<logger level="DEBUG" doc:name="Log Token Key" doc:id="6cdf2ed1-d491-45a5-9fcc-a25ea6170918" message='#["Retreiving token from object store with key: " ++ vars.tokenKey as String]' category="com.avioconsulting.mule.connector.google-jwt-auth " />
 		<os:retrieve doc:name="Retrieve token" doc:id="d81852eb-d2c8-4a51-915d-d4783357ca67" key="#[vars.tokenKey]" objectStore="Object_store">
 			<os:default-value ><![CDATA[NO_TOKEN]]></os:default-value>
 		</os:retrieve>
