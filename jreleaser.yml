@@ -19,7 +19,7 @@ project:
     - JWT
   java:
     groupId: com.avioconsulting.mule
-    version: "8"
+    version: "17"
 
 release:
   github:
