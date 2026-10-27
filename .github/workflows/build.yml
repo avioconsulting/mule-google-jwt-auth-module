@@ -11,40 +11,44 @@ on:
     branches:
       - 'main'
 
+permissions:
+  contents: read
+
 jobs:
   Build-Maven:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     uses: avioconsulting/shared-workflows/.github/workflows/maven-build.yml@main
     secrets: inherit
     with:
       include-mule-ee-repo: true
-      java-version: 17
-    #   java-distribution: adopt-hotspot
-    #   java-version: 8
-    #   include-test-results: true
-    #   maven-args: -X
+      java-distribution: temurin
+      java-version: '17'
 
   Release-Maven:
+    # Feature branches and main snapshots build only; publish final versions on main.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(needs.Build-Maven.outputs.app-version, 'SNAPSHOT')
     needs: Build-Maven
+    permissions:
+      contents: write
     uses: avioconsulting/shared-workflows/.github/workflows/maven-release.yml@main
     secrets: inherit
     with:
       app-version: ${{ needs.Build-Maven.outputs.app-version }}
       publish-maven-central: true
-      java-version: 17
-    #   java-distribution: adopt-hotspot
-    #   java-version: 8
-    #   maven-args: -X
-    #   main-branch: main
+      java-distribution: temurin
+      java-version: '17'
 
   Post-Release-Maven:
     needs: [Build-Maven, Release-Maven]
+    permissions:
+      contents: write
+      pull-requests: write
     uses: avioconsulting/shared-workflows/.github/workflows/maven-post-release.yml@main
     secrets: inherit
     with:
       app-version: ${{ needs.Build-Maven.outputs.app-version }}
-      java-version: 17
-    #   java-distribution: adopt-hotspot
-    #   java-version: 8
-    #   maven-args: -X
-    #   main-branch: main
-    #   pr-reviewers: adesjardin, manikmagar, kkingavio
+      java-distribution: temurin
+      java-version: '17'
