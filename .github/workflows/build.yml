@@ -38,6 +38,7 @@ jobs:
     with:
       app-version: ${{ needs.Build-Maven.outputs.app-version }}
       publish-maven-central: true
+      maven-args: --batch-mode
       java-distribution: temurin
       java-version: '17'
 
