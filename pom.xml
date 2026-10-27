@@ -163,14 +163,21 @@
           <artifactId>central-publishing-maven-plugin</artifactId>
           <version>0.12.0</version>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.2.8</version>
-        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
+      <!-- Override the explicit 1.6 version inherited from the parent's release profile.
+           Keep signing execution release-only; the parent supplies that execution. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.2.8</version>
+        <configuration>
+          <bestPractices>true</bestPractices>
+          <passphraseEnvName>MAVEN_GPG_PASSPHRASE</passphraseEnvName>
+          <useAgent>false</useAgent>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
